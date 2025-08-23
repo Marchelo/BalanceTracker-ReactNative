@@ -1,5 +1,5 @@
 // const express = require("express")
-import express from "express"
+import express, { json } from "express"
 import dotenv from "dotenv"
 import { sql } from "./config/db.js";
 
@@ -30,6 +30,21 @@ async function initDB() {
   }
 }
 
+app.get("/api/transactions/:userId",async(req, res)=>{
+  try {
+    const { userId } = req.params;
+
+    const transactions = await sql`
+      SELECT * FROM transactions WHERE user_id = ${userId} ORDER BY created_at DESC
+    `
+    res.status(200).json(transactions);
+
+  } catch (error) {
+    console.log("Error getting transaction", error);
+    res.status(500).json({message: "Internal error"})
+  }
+})
+
 app.post("/api/transactions", async (req, res) => {
   // title amount catrgort userID
   try {
@@ -50,6 +65,29 @@ app.post("/api/transactions", async (req, res) => {
 
   } catch (error) {
     console.log("Error creating transaction", error);
+    res.status(500).json({message: "Internal error"})
+  }
+})
+
+app.delete("/api/transactions/:id", async (req, res) => {
+  try {
+    const {id} = req.params;
+
+    if (isNaN(parseInt(id))) {
+      return res.status(400).json({message:"Invalid transaction id"})
+    } // da ne bi server chrash-ovao proveris prvo da li je poslata validna vrednost
+
+    const result = await sql`
+      DELETE FROM transactions WHERE id = ${id} RETURNING *
+    `
+
+    if(result.length === 0){
+      return res.status(404).json({message:"Transaction not found!"})
+    }
+    res.status(200).json({message:"Transaction deleted successfully!"})
+
+  } catch (error) {
+    console.log("Error deleting transaction", error);
     res.status(500).json({message: "Internal error"})
   }
 })
