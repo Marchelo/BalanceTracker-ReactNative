@@ -13,10 +13,10 @@ export default function SignUpScreen() {
   const { isLoaded, signUp, setActive } = useSignUp()
   const router = useRouter()
 
-  const [emailAddress, setEmailAddress] = useState('')
-  const [password, setPassword] = useState('')
+  const [emailAddress, setEmailAddress] = useState("")
+  const [password, setPassword] = useState("")
   const [pendingVerification, setPendingVerification] = useState(false)
-  const [code, setCode] = useState('')
+  const [code, setCode] = useState("")
   const [error, setError] = useState("");
   
   // Handle submission of sign-up form
@@ -37,9 +37,12 @@ export default function SignUpScreen() {
       // and capture OTP code
       setPendingVerification(true)
     } catch (err) {
-      // See https://clerk.com/docs/custom-flows/error-handling
-      // for more info on error handling
-      console.error(JSON.stringify(err, null, 2))
+      if (err.errors?.[0]?.code === "form_identifier_exists") {
+        setError("That email address is already in use. Please try another.");
+      } else {
+        setError("An error occurred. Please try again.");
+      }
+      console.log(err);
     }
   }
 
@@ -105,7 +108,7 @@ export default function SignUpScreen() {
         contentContainerStyle={{ flexGrow:1 }}
         enableOnAndroid={true}
         enableAutomaticScroll={true}
-        // extraScrollHeight={50}d
+        // extraScrollHeight={50}
     >
         <View style={styles.container}>
             <Image source={require("../../assets/images/revenue-i2.png")} style={styles.illustration} />
