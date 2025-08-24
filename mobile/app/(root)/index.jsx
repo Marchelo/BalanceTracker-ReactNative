@@ -7,14 +7,14 @@ import { useEffect } from 'react'
 import PageLoader from '../../components/PageLoader'
 import { styles } from '../../assets/styles/home.styles'
 import { Ionicons } from "@expo/vector-icons";
-import { BalanceCard } from '../../components/BalanceCart'
+import { BalanceCard } from '../../components/BalanceCard.jsx'
 import { TransactionItem } from '../../components/TransactionItem'
 import NoTransactionsFound from '../../components/NoTransactionsFound'
 import { useState } from 'react'
 
 
 export default function Page() {
-  const { user } = useUser()
+  const { user } = useUser();
   const router = useRouter();
   const [refreshing, setRefreshing] = useState(false);
 
@@ -24,30 +24,28 @@ export default function Page() {
 
   const onRefresh = async () => {
     setRefreshing(true);
-    loadData();
+    await loadData();
     setRefreshing(false);
-  }
+  };
 
-  useEffect(()=>{
+  useEffect(() => {
     loadData();
   }, [loadData]);
 
-
   const handleDelete = (id) => {
-    Alert.alert("Delete transaction", "Are you sure you want to delete transaction?",[
-      { text: 'Cancel', style:'cancel' },
-      { text: 'Delete', style:'destructive', onPress: () => deleteTransaction(id)},
+    Alert.alert("Delete Transaction", "Are you sure you want to delete this transaction?", [
+      { text: "Cancel", style: "cancel" },
+      { text: "Delete", style: "destructive", onPress: () => deleteTransaction(id) },
     ]);
-  }
+  };
 
-  if(isLoading && !refreshing) return <PageLoader />;
+  if (isLoading && !refreshing) return <PageLoader />;
 
   return (
     <View style={styles.container}>
       <View style={styles.content}>
         {/* HEADER */}
         <View style={styles.header}>
-
           {/* LEFT */}
           <View style={styles.headerLeft}>
             <Image
@@ -62,7 +60,6 @@ export default function Page() {
               </Text>
             </View>
           </View>
-
           {/* RIGHT */}
           <View style={styles.headerRight}>
             <TouchableOpacity style={styles.addButton} onPress={() => router.push("/create")}>
@@ -78,22 +75,20 @@ export default function Page() {
         <View style={styles.transactionsHeaderContainer}>
           <Text style={styles.sectionTitle}>Recent Transactions</Text>
         </View>
-
       </View>
 
-{/* FlatList - bolji nacin za renderovanje dugih lista u React Native. 
-Renderuje ih 'lazily' samo one na ekranu, npr imas 500 transakcija, na ekranu se prikazuje samo 5 koji mogu stati na ekran  
-renderovace se ostale tek kada skrolujes dole kroz listu transakcija*/}
-      <FlatList 
+  {/* FlatList - bolji nacin za renderovanje dugih lista u React Native. 
+  Renderuje ih 'lazily' samo one na ekranu, npr imas 500 transakcija, na ekranu se prikazuje samo 5 koji mogu stati na ekran  
+  renderovace se ostale tek kada skrolujes dole kroz listu transakcija*/}
+      <FlatList
         style={styles.transactionsList}
         contentContainerStyle={styles.transactionsListContent}
         data={transactions}
-        renderItem={({item}) => <TransactionItem item={item} onDelete={handleDelete} />}
+        renderItem={({ item }) => <TransactionItem item={item} onDelete={handleDelete} />}
         ListEmptyComponent={<NoTransactionsFound />}
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       />
-
     </View>
-  )
+  );
 }
